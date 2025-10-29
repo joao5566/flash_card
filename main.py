@@ -19,6 +19,25 @@ window = tk.Tk()
 window.configure(padx=50, pady=50, bg=BACKGROUND_COLOR)
 window.title("Flash Card App")
 
+
+
+#---------------Salvando os dados -----------------------# 
+
+words_to_learn_dic = {
+        "French":[],
+        "English":[]
+        }
+
+
+
+
+
+
+
+
+
+
+
 def random_word():
     global CURRENT_FRENCH, CURRENT_ENGLISH
     try:
@@ -27,6 +46,8 @@ def random_word():
         random_index = random.randint(0, len(df) - 1)
         CURRENT_FRENCH = df.loc[random_index, "French"]
         CURRENT_ENGLISH = df.loc[random_index, "English"]
+        df_save = pd.DataFrame(words_to_learn_dic)
+        df_save.to_csv("words_to_learn_dic.csv",index=False)
     except Exception as e:
         print(f"Erro ao carregar palavras: {e}")
 
@@ -49,7 +70,10 @@ def new_card():
     canvas.itemconfig(canvas_image, image=card_front_img)
     canvas.itemconfig(TITLE, text="French", fill="black")
     canvas.itemconfig(WORD, text=CURRENT_FRENCH, fill="black")
-    
+   
+    words_to_learn_dic["French"].append(CURRENT_FRENCH)
+    words_to_learn_dic["English"].append(CURRENT_ENGLISH)
+    print(words_to_learn_dic)
     # Configura o temporizador para virar o cartão após 3 segundos
     flip_timer = window.after(3000, flip_card)
 
@@ -79,5 +103,8 @@ right_btn.grid(column=1, row=1)
 
 # Inicia com o primeiro cartão
 new_card()
+
+
+
 
 window.mainloop()
