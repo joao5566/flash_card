@@ -7,6 +7,8 @@ BACKGROUND_COLOR = "#B1DDC6"
 CURRENT_FRENCH = ""  # Corrigido o nome da variável
 CURRENT_ENGLISH = ""
 flip_timer = None  # Para controlar o temporizador
+to_learn = []   # lista global de palavras
+current_card = {}  # palavra atual
 
 def resource_path(relative_path):
     try:
@@ -20,36 +22,23 @@ window.configure(padx=50, pady=50, bg=BACKGROUND_COLOR)
 window.title("Flash Card App")
 
 
-
-#---------------Salvando os dados -----------------------# 
-
-words_to_learn_dic = {
-        "French":[],
-        "English":[]
-        }
-
-
-
-
-
-
-
-
+def load_data():
+    global to_learn
+    try:
+        data = pd.read_csv(resource_path("data/words_to_learn.csv"))
+    except FileNotFoundError:
+        data = pd.read_csv("data/french_words.csv")
+    to_learn = data.to_dict(orient="records")
 
 
 
 def random_word():
-    global CURRENT_FRENCH, CURRENT_ENGLISH
-    try:
-        data = pd.read_csv(resource_path("data/french_words.csv"))
-        df = pd.DataFrame(data)
-        random_index = random.randint(0, len(df) - 1)
-        CURRENT_FRENCH = df.loc[random_index, "French"]
-        CURRENT_ENGLISH = df.loc[random_index, "English"]
-        df_save = pd.DataFrame(words_to_learn_dic)
-        df_save.to_csv("words_to_learn_dic.csv",index=False)
-    except Exception as e:
-        print(f"Erro ao carregar palavras: {e}")
+    global current_card, CURRENT_FRENCH,CURRENT_ENGLISH
+
+    current_card = random.choice(to_learn)
+    CURRENT_ENGLISH = current_card["English"]
+    CURRENT_FRENCH = current_card["French"]
+
 
 def flip_card():
     # Vira o cartão para mostrar a tradução em inglês
@@ -59,6 +48,13 @@ def flip_card():
 
 def new_card():
     global flip_timer
+
+    if not to_learn:
+        canvas.itemconfig(TITLE, text="Congratulations!", fill="black")
+        canvas.itemconfig(WORD, text="You learned all words!", fill="black")
+        return
+
+
     # Cancela o temporizador anterior se existir
     if flip_timer is not None:
         window.after_cancel(flip_timer)
@@ -71,9 +67,6 @@ def new_card():
     canvas.itemconfig(TITLE, text="French", fill="black")
     canvas.itemconfig(WORD, text=CURRENT_FRENCH, fill="black")
    
-    words_to_learn_dic["French"].append(CURRENT_FRENCH)
-    words_to_learn_dic["English"].append(CURRENT_ENGLISH)
-    print(words_to_learn_dic)
     # Configura o temporizador para virar o cartão após 3 segundos
     flip_timer = window.after(3000, flip_card)
 
@@ -101,6 +94,8 @@ right_btn_img = tk.PhotoImage(file=resource_path("images/right.png"))
 right_btn = tk.Button(image=right_btn_img, highlightthickness=0, borderwidth=0, command=new_card)
 right_btn.grid(column=1, row=1)
 
+
+load_data()
 # Inicia com o primeiro cartão
 new_card()
 
