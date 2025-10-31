@@ -70,6 +70,15 @@ def new_card():
     # Configura o temporizador para virar o cartão após 3 segundos
     flip_timer = window.after(3000, flip_card)
 
+
+
+def mard_as_known():
+    to_learn.remove(current_card)
+    pd.DataFrame(to_learn).to_csv(resource_path("data/words_to_learn.csv"),index=False)
+    new_card()
+
+
+
 # Configuração do Canvas
 canvas = tk.Canvas(width=800, height=526, bg=BACKGROUND_COLOR, highlightthickness=0)
 
@@ -91,7 +100,7 @@ wrong_btn = tk.Button(image=wrong_btn_img, highlightthickness=0, borderwidth=0, 
 wrong_btn.grid(column=0, row=1)
 
 right_btn_img = tk.PhotoImage(file=resource_path("images/right.png"))
-right_btn = tk.Button(image=right_btn_img, highlightthickness=0, borderwidth=0, command=new_card)
+right_btn = tk.Button(image=right_btn_img, highlightthickness=0, borderwidth=0, command=mard_as_known)
 right_btn.grid(column=1, row=1)
 
 
